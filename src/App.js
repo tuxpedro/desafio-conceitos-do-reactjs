@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import apiRepositories from './services/api'
+// import List from './Components/List'
+// import Button from './Components/Button'
 import "./styles.css";
 
 function App() {
@@ -34,27 +36,32 @@ function App() {
     setRepository(repositoryData)
   }
 
-
-
   async function handleAddRepository(event) {
     event.preventDefault()
-    try {
-      if(repositoryIsEmpty(repository)) throw new Error('No repository found')
-      const response = await apiRepositories.post('repositories', repository)
-      const {data, status} = response
-      if(status !== 200) throw new Error('could not add repository')
-      setRepositories([...repositories, data])
-    } catch (error) {
-      console.log(error.message)
-    }
-    
+    // event.preventDefault()
+    // try {
+    //   if (repositoryIsEmpty(repository)) throw new Error('No repository found')
+    //   const response = await apiRepositories.post('repositories', repository)
+    //   const { data, status } = response
+    //   if (status !== 200) throw new Error('could not add repository')
+    //   setRepositories([...repositories, data])
+    // } catch (error) {
+    //   console.log(error.message)
+    // }
+    const response = await apiRepositories.post('repositories', {
+      url: 'https://github.com/tuxpedro/appde',
+      title: 'AppDE',
+      techs: ['Javascript', 'HTML', 'CSS']
+    })
+    const { data } = response
+    setRepositories([...repositories, data])
   }
 
-  async function handleRemoveRepository({ id }) {
+  async function handleRemoveRepository(id) {
     try {
       const { status } = await apiRepositories.delete(`repositories/${id}`)
       if (status !== 204) throw new Error('Could not remove repository')
-      getRepositories()
+      setRepositories(repositories.filter(({ id: repoId }) => repoId !== id))
     } catch (error) {
       console.log(error.message)
     }
@@ -63,17 +70,30 @@ function App() {
   return (
     <div>
       <ul data-testid="repository-list">
-        {repositories.map(({ id, title }) =>
-          (
+        {
+          repositories.map(({ id, title }) => (
             <li key={id}>
               {title}
               <button
-                onClick={() => handleRemoveRepository({ id })}>
+                onClick={() => handleRemoveRepository(id)}>
                 Remover
-              </button>
+                </button>
             </li>
-          )
-        )}
+          ))
+        }
+
+        {
+          // repositories.map(({ id, title }) =>
+          //   <List
+          //     key={id}
+          //     id={id}
+          //     title={title}
+          //     value="Remover"
+          //     /*onClick={() => handleRemoveRepository(id)}*/>
+          //     <Button onClick={() => handleRemoveRepository(id)}></Button>
+          //   </List>
+          // )
+        }
       </ul>
 
       <form>
@@ -103,7 +123,6 @@ function App() {
         </label>
         <button type="submit" onClick={handleAddRepository}>Adicionar</button>
       </form>
-
     </div>
 
   );
